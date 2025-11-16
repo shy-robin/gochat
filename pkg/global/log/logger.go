@@ -1,10 +1,12 @@
 package log
 
 import (
-	"os"
-
+	"fmt"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+	"os"
+	"sync"
+	"time"
 )
 
 // zap 的使用参考：bilibili.com/video/BV1Rk99YHEM6
@@ -74,6 +76,34 @@ func levelEncoder(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 	}
 }
 
+type dayLogWriter struct {
+	file        *os.File
+	mutex       sync.Mutex
+	currentDate string
+}
+
+func (this *dayLogWriter) Write(b []byte) (n int, err error) {
+	this.mutex.Lock()
+	defer this.mutex.Unlock()
+
+	nowTime := time.Now().Format("2006-01-02")
+	if this.currentDate == nowTime {
+		return this.file.Write(b)
+	}
+
+	if this.file != nil {
+		this.file.Close()
+	}
+
+	fileName := fmt.Sprintf("logs/%s.log", nowTime)
+	file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+
+	this.file = file
+	this.currentDate = nowTime
+
+	return this.file.Write(b)
+}
+
 func InitLogger(logPath string, logLevel string) {
 	// 测试代码
 	// devLog()
@@ -89,6 +119,7 @@ func InitLogger(logPath string, logLevel string) {
 	// warn  只能打印 warn
 	// debug->info->warn->error
 	// cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+
 	// 格式化时间
 	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	// 输出美化颜色
@@ -101,11 +132,10 @@ func InitLogger(logPath string, logLevel string) {
 		zapcore.DebugLevel,         // 设置显示的日志级别（debug 可以打印出 debug info warn）
 	)
 	// 文件日志
-	file, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	fileCore := zapcore.NewCore(
 		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
-		zapcore.AddSync(file), // 输出到文件
-		zapcore.DebugLevel,    // 设置显示的日志级别（debug 可以打印出 debug info warn）
+		zapcore.AddSync(&dayLogWriter{}), // 输出到文件（日志按每天分片）
+		zapcore.DebugLevel,               // 设置显示的日志级别（debug 可以打印出 debug info warn）
 	)
 
 	// 日志双写（控制台 + 文件）
