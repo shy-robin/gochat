@@ -5,11 +5,17 @@ import (
 	"go.uber.org/zap/zapcore"
 )
 
+// zap 的使用参考：bilibili.com/video/BV1Rk99YHEM6
+
 const (
 	BLUE   = "\033[0;34m"
 	YELLOW = "\033[0;33m"
 	RED    = "\033[0;31m"
 	RESET  = "\033[0m"
+)
+
+var (
+	Logger *zap.Logger
 )
 
 func devLog() {
@@ -87,12 +93,8 @@ func InitLogger(logPath string, logLevel string) {
 	cfg.EncoderConfig.EncodeLevel = levelEncoder
 	logger, _ := cfg.Build()
 
-	logger.Debug("This is DEV Debug log.")
-	logger.Info("This is DEV Info log.")
-	// 以下方法会打印调用栈
-	logger.Warn("This is DEV Warn log.")
-	logger.Error("This is DEV Error log.")
-	// 以下方法会抛出错误，并不再执行后续代码
-	logger.Panic("This is DEV Panic log.")
-	logger.Fatal("This is DEV Fatal log.")
+	Logger = logger
+
+	// 全局替换 zap 实例，使 zap.L().Info 能够调用
+	zap.ReplaceGlobals(logger)
 }

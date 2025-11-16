@@ -8,4 +8,5 @@ import (
 func main() {
 	logConfig := config.GetConfig().Log
 	log.InitLogger(logConfig.Path, logConfig.Level)
+	log.Logger.Info("Hello, gochat!")
 }
