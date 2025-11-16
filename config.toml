@@ -1,0 +1,5 @@
+appName = "gochat"
+
+[log]
+level = "debug"
+path = "logs/chat.log"
