@@ -1,6 +1,8 @@
 package log
 
 import (
+	"os"
+
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -86,12 +88,31 @@ func InitLogger(logPath string, logLevel string) {
 	// info  级别可以打印 info warn
 	// warn  只能打印 warn
 	// debug->info->warn->error
-	cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
+	// cfg.Level = zap.NewAtomicLevelAt(zap.InfoLevel)
 	// 格式化时间
 	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	// 输出美化颜色
 	cfg.EncoderConfig.EncodeLevel = levelEncoder
-	logger, _ := cfg.Build()
+
+	// 控制台日志
+	consoleCore := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
+		zapcore.AddSync(os.Stdout), // 输出到控制台
+		zapcore.DebugLevel,         // 设置显示的日志级别（debug 可以打印出 debug info warn）
+	)
+	// 文件日志
+	file, _ := os.OpenFile(logPath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
+	fileCore := zapcore.NewCore(
+		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
+		zapcore.AddSync(file), // 输出到文件
+		zapcore.DebugLevel,    // 设置显示的日志级别（debug 可以打印出 debug info warn）
+	)
+
+	// 日志双写（控制台 + 文件）
+	core := zapcore.NewTee(consoleCore, fileCore)
+
+	// 创建 logger 实例
+	logger := zap.New(core, zap.AddCaller()) // 显示堆栈跟踪信息
 
 	Logger = logger
 
