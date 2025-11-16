@@ -1,13 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"github.com/shy-robin/gochat/config"
+	"github.com/shy-robin/gochat/pkg/global/log"
 )
 
 func main() {
-	fmt.Println("Hello, gochat!")
-	log := config.GetConfig().Log
-
-	fmt.Println(log)
+	logConfig := config.GetConfig().Log
+	log.InitLogger(logConfig.Path, logConfig.Level)
 }
