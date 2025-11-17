@@ -3,19 +3,20 @@ package log
 import (
 	"fmt"
 	"go.uber.org/zap"
+	"go.uber.org/zap/buffer"
 	"go.uber.org/zap/zapcore"
 	"os"
-	"sync"
+	"strings"
 	"time"
 )
 
 // zap 的使用参考：bilibili.com/video/BV1Rk99YHEM6
 
 const (
-	BLUE   = "\033[0;34m"
-	YELLOW = "\033[0;33m"
-	RED    = "\033[0;31m"
-	RESET  = "\033[0m"
+	BLUE_COLOR   = "\033[0;34m"
+	YELLOW_COLOR = "\033[0;33m"
+	RED_COLOR    = "\033[0;31m"
+	RESET_COLOR  = "\033[0m"
 )
 
 var (
@@ -64,47 +65,72 @@ func prodLog() {
 }
 
 func levelEncoder(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
+	upperLevel := strings.ToUpper(level.String())
+
 	switch level {
 	case zapcore.InfoLevel:
-		enc.AppendString(BLUE + level.String() + RESET)
+		enc.AppendString(BLUE_COLOR + upperLevel + RESET_COLOR)
 	case zapcore.WarnLevel:
-		enc.AppendString(YELLOW + level.String() + RESET)
+		enc.AppendString(YELLOW_COLOR + upperLevel + RESET_COLOR)
 	case zapcore.ErrorLevel, zapcore.PanicLevel, zapcore.FatalLevel:
-		enc.AppendString(RED + level.String() + RESET)
+		enc.AppendString(RED_COLOR + upperLevel + RESET_COLOR)
 	default:
-		enc.AppendString(level.String())
+		enc.AppendString(upperLevel)
 	}
 }
 
-type dayLogWriter struct {
+// logEncoder 时间分片和 level 分片同时做
+type logEncoder struct {
+	zapcore.Encoder
 	file        *os.File
-	mutex       sync.Mutex
+	errFile     *os.File
 	currentDate string
 }
 
-func (this *dayLogWriter) Write(b []byte) (n int, err error) {
-	this.mutex.Lock()
-	defer this.mutex.Unlock()
-
-	nowTime := time.Now().Format("2006-01-02")
-	if this.currentDate == nowTime {
-		return this.file.Write(b)
+func (this *logEncoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field) (*buffer.Buffer, error) {
+	// 先调用原始的 EncodeEntry 方法生成日志行
+	buff, err := this.Encoder.EncodeEntry(entry, fields)
+	if err != nil {
+		return nil, err
 	}
 
-	if this.file != nil {
-		this.file.Close()
+	data := buff.String()
+	buff.Reset()
+	buff.AppendString("[myApp]" + data)
+	data = buff.String()
+
+	// 时间分片
+	now := time.Now().Format("2006-01-02")
+	if this.currentDate != now {
+		dirName := fmt.Sprintf("logs/%s", now)
+		mkdirErr := os.MkdirAll(dirName, 0755)
+		if mkdirErr != nil {
+			return nil, mkdirErr
+		}
+		fileName := fmt.Sprintf("logs/%s/output.log", now)
+		file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+		this.file = file
+		this.currentDate = now
 	}
 
-	fileName := fmt.Sprintf("logs/%s.log", nowTime)
-	file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0666)
+	switch entry.Level {
+	case zapcore.ErrorLevel:
+		if this.errFile == nil {
+			fileName := fmt.Sprintf("logs/%s/error.log", now)
+			file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
+			this.errFile = file
+		}
+		this.errFile.WriteString(buff.String())
+	}
 
-	this.file = file
-	this.currentDate = nowTime
+	if this.currentDate == now {
+		this.file.WriteString(data)
+	}
 
-	return this.file.Write(b)
+	return buff, nil
 }
 
-func InitLogger(logPath string, logLevel string) {
+func InitLogger(logPath string, logLevel string) *zap.Logger {
 	// 测试代码
 	// devLog()
 	// exampleLog()
@@ -112,6 +138,7 @@ func InitLogger(logPath string, logLevel string) {
 
 	// logger, _ := zap.NewDevelopment()
 
+	// 使用 zap 的 NewDevelopmentConfig 快速配置
 	cfg := zap.NewDevelopmentConfig()
 
 	// debug 可以打印出 debug info warn
@@ -124,28 +151,24 @@ func InitLogger(logPath string, logLevel string) {
 	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	// 输出美化颜色
 	cfg.EncoderConfig.EncodeLevel = levelEncoder
+	// 创建自定义的 Encoder
+	encoder := &logEncoder{
+		Encoder: zapcore.NewConsoleEncoder(cfg.EncoderConfig), // 使用 Console 编码器
+	}
 
-	// 控制台日志
-	consoleCore := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
+	core := zapcore.NewCore(
+		encoder,
 		zapcore.AddSync(os.Stdout), // 输出到控制台
 		zapcore.DebugLevel,         // 设置显示的日志级别（debug 可以打印出 debug info warn）
 	)
-	// 文件日志
-	fileCore := zapcore.NewCore(
-		zapcore.NewConsoleEncoder(cfg.EncoderConfig),
-		zapcore.AddSync(&dayLogWriter{}), // 输出到文件（日志按每天分片）
-		zapcore.DebugLevel,               // 设置显示的日志级别（debug 可以打印出 debug info warn）
-	)
-
-	// 日志双写（控制台 + 文件）
-	core := zapcore.NewTee(consoleCore, fileCore)
 
 	// 创建 logger 实例
 	logger := zap.New(core, zap.AddCaller()) // 显示堆栈跟踪信息
 
-	Logger = logger
-
 	// 全局替换 zap 实例，使 zap.L().Info 能够调用
 	zap.ReplaceGlobals(logger)
+
+	Logger = logger
+
+	return logger
 }
