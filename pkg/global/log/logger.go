@@ -21,6 +21,9 @@ const (
 
 var (
 	Logger *zap.Logger
+	// 将配置对象的完整内容，以键值对的形式，嵌入到日志记录中
+	Any    = zap.Any
+	String = zap.String
 )
 
 func devLog() {
