@@ -2,4 +2,4 @@ appName = "gochat"
 
 [log]
 level = "debug"
-path = "logs/%s.log"
+path = "logs"

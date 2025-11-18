@@ -82,6 +82,8 @@ func levelEncoder(level zapcore.Level, enc zapcore.PrimitiveArrayEncoder) {
 // logEncoder 时间分片和 level 分片同时做
 type logEncoder struct {
 	zapcore.Encoder
+	logPath     string
+	logLevel    string
 	file        *os.File
 	errFile     *os.File
 	currentDate string
@@ -101,13 +103,14 @@ func (this *logEncoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field)
 
 	// 时间分片
 	now := time.Now().Format("2006-01-02")
+	dirName := fmt.Sprintf("%s/%s", this.logPath, now)
+
 	if this.currentDate != now {
-		dirName := fmt.Sprintf("logs/%s", now)
 		mkdirErr := os.MkdirAll(dirName, 0755)
 		if mkdirErr != nil {
 			return nil, mkdirErr
 		}
-		fileName := fmt.Sprintf("logs/%s/output.log", now)
+		fileName := fmt.Sprintf("%s/output.log", dirName)
 		file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 		this.file = file
 		this.currentDate = now
@@ -116,7 +119,7 @@ func (this *logEncoder) EncodeEntry(entry zapcore.Entry, fields []zapcore.Field)
 	switch entry.Level {
 	case zapcore.ErrorLevel:
 		if this.errFile == nil {
-			fileName := fmt.Sprintf("logs/%s/error.log", now)
+			fileName := fmt.Sprintf("%s/error.log", dirName)
 			file, _ := os.OpenFile(fileName, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0755)
 			this.errFile = file
 		}
@@ -151,15 +154,38 @@ func InitLogger(logPath string, logLevel string) *zap.Logger {
 	cfg.EncoderConfig.EncodeTime = zapcore.TimeEncoderOfLayout("2006-01-02 15:04:05")
 	// 输出美化颜色
 	cfg.EncoderConfig.EncodeLevel = levelEncoder
+
+	// 根据传入的日志级别设置配置
+	var level zapcore.Level
+	switch logLevel {
+	case "debug":
+		level = zapcore.DebugLevel
+	case "info":
+		level = zapcore.InfoLevel
+	case "warn":
+		level = zapcore.WarnLevel
+	case "error":
+		level = zapcore.ErrorLevel
+	case "panic":
+		level = zapcore.PanicLevel
+	case "fatal":
+		level = zapcore.FatalLevel
+	default:
+		level = zapcore.InfoLevel // 默认为 info 级别
+	}
+	cfg.Level = zap.NewAtomicLevelAt(level)
+
 	// 创建自定义的 Encoder
 	encoder := &logEncoder{
-		Encoder: zapcore.NewConsoleEncoder(cfg.EncoderConfig), // 使用 Console 编码器
+		Encoder:  zapcore.NewConsoleEncoder(cfg.EncoderConfig), // 使用 Console 编码器
+		logPath:  logPath,
+		logLevel: logLevel,
 	}
 
 	core := zapcore.NewCore(
 		encoder,
 		zapcore.AddSync(os.Stdout), // 输出到控制台
-		zapcore.DebugLevel,         // 设置显示的日志级别（debug 可以打印出 debug info warn）
+		level,                      // 设置显示的日志级别（debug 可以打印出 debug info warn）
 	)
 
 	// 创建 logger 实例
