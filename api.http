@@ -1,15 +1,19 @@
 ### 获取用户信息
 
-GET http://localhost:8083/userInfo?name=robin
+GET /ping HTTP/1.1
+
+### 获取用户信息
+
+GET /userInfo?name=robin
   &id=fds HTTP/1.1
 
 ### 获取用户信息
 
-GET http://localhost:8083/user/info/test/robin HTTP/1.1
+GET /user/info/test/robin HTTP/1.1
 
 ### 获取用户信息
 
-POST http://localhost:8083/json HTTP/1.1
+POST /json HTTP/1.1
 Content-Type: application/json
 
 {
@@ -20,4 +24,4 @@ Content-Type: application/json
 
 ### 获取用户信息
 
-GET http://localhost:8083/redirect HTTP/1.1
+GET /redirect HTTP/1.1
