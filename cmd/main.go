@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/shy-robin/gochat/config"
+	"github.com/shy-robin/gochat/internal/router"
 	"github.com/shy-robin/gochat/pkg/global/log"
 )
 
@@ -10,4 +11,9 @@ func main() {
 	logConfig := config.GetConfig().Log
 	log.InitLogger(logConfig.Path, logConfig.Level)
 	log.Logger.Info("config", log.Any("config", config.GetConfig()))
+
+	// 初始化路由
+	ginServer := router.NewRouter()
+
+	ginServer.Run(":8083")
 }
