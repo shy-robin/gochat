@@ -16,6 +16,7 @@ func Register(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
 			"message": err.Error(),
 		})
 		return
@@ -23,7 +24,16 @@ func Register(ctx *gin.Context) {
 
 	err = service.UserSvc.Register(&user)
 
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"status":  "error",
+			"message": err.Error(),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"data": user,
+		"status": "success",
+		"data":   user,
 	})
 }

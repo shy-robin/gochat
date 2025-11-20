@@ -11,7 +11,7 @@ func NewRouter() *gin.Engine {
 	{
 		group1 := ginServer.Group("/api/v1")
 
-		group1.POST("/user/register", v1.Register)
+		group1.POST("/users", v1.Register)
 	}
 
 	return ginServer
