@@ -8,12 +8,24 @@ import (
 type TomlConfig struct {
 	AppName string
 	Log     LogConfig
+	MySQL   MySQLConfig
 }
 
 // 日志存储地址
 type LogConfig struct {
 	Path  string
 	Level string
+}
+
+// 数据库配置
+type MySQLConfig struct {
+	Host        string
+	Name        string
+	Password    string
+	Port        int
+	TablePrefix string
+	User        string
+	Timeout     string
 }
 
 var c TomlConfig

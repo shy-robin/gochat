@@ -3,3 +3,12 @@ appName = "gochat"
 [log]
 level = "debug"
 path = "logs"
+
+[mysql]
+host = "127.0.0.1"
+name = "gochat"
+password = "123456"
+port = 3306
+tablePrefix = ""
+user = "root"
+timeout = "10s"

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/shy-robin/gochat/internal/model"
+	"github.com/shy-robin/gochat/internal/service"
 )
 
 func Register(ctx *gin.Context) {
@@ -19,6 +20,8 @@ func Register(ctx *gin.Context) {
 		})
 		return
 	}
+
+	service.UserService.Register(&user)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": user,
