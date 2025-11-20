@@ -21,7 +21,7 @@ func Register(ctx *gin.Context) {
 		return
 	}
 
-	service.UserService.Register(&user)
+	err = service.UserSvc.Register(&user)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"data": user,
