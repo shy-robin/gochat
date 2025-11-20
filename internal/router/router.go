@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/shy-robin/gochat/api/v1"
+	"github.com/shy-robin/gochat/internal/handler/v1"
 )
 
 func NewRouter() *gin.Engine {
