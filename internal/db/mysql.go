@@ -4,6 +4,8 @@ import (
 	"fmt"
 
 	"github.com/shy-robin/gochat/config"
+	"github.com/shy-robin/gochat/internal/model"
+	"github.com/shy-robin/gochat/pkg/global/log"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -11,7 +13,14 @@ import (
 
 var db *gorm.DB
 
-func init() {
+func InitMysqlDB() {
+	// 初始化连接
+	initDB()
+	// 执行迁移，确保表结构最新（自动创建表）
+	migrateDB()
+}
+
+func initDB() {
 	mysqlConfig := config.GetConfig().MySQL
 	username := mysqlConfig.User     // 账号
 	password := mysqlConfig.Password // 密码
@@ -52,6 +61,17 @@ func init() {
 	// 设置数据库连接池参数
 	sqlDB.SetMaxOpenConns(100) // 设置数据库连接池最大连接数
 	sqlDB.SetMaxIdleConns(20)  // 连接池最大允许的空闲连接数，如果没有 sql 任务需要执行的连接数大于 20，超过的连接会被连接池关闭。
+}
+
+func migrateDB() {
+	log.Logger.Info("数据库自动迁移")
+
+	err := db.AutoMigrate(&model.User{})
+	if err != nil {
+		log.Logger.Error("自动迁移数据库失败", log.Any("err", err))
+	}
+
+	log.Logger.Info("数据库自动迁移完成")
 }
 
 func GetDB() *gorm.DB {
