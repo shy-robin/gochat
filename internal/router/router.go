@@ -15,6 +15,8 @@ func NewRouter() *gin.Engine {
 		group1.GET("/user/info/:id/:name", v1.GetUserInfoRestful)
 		group1.POST("/json", v1.TestJson)
 		group1.GET("/redirect", v1.TestRedirect)
+
+		group1.POST("/user/register", v1.Register)
 	}
 
 	return ginServer
