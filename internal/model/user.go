@@ -2,6 +2,7 @@ package model
 
 import (
 	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
@@ -24,6 +25,22 @@ func (this *User) BeforeCreate(tx *gorm.DB) (err error) {
 		this.Uuid = uuid.NewString()
 	}
 
+	// 密码加密的最佳实践：使用 bcrypt
+	hashedPassword, hashErr := bcrypt.GenerateFromPassword([]byte(this.Password), bcrypt.DefaultCost)
+
+	if hashErr != nil {
+		return hashErr
+	}
+
+	// 替换明文密码
+	this.Password = string(hashedPassword)
+
 	// 返回 nil 表示操作成功，GORM 继续执行插入操作
 	return nil
+}
+
+// 辅助方法：验证密码
+func (this *User) CheckPassword(password string) bool {
+	err := bcrypt.CompareHashAndPassword([]byte(this.Password), []byte(password))
+	return err == nil
 }
