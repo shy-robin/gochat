@@ -16,20 +16,31 @@ func Register(ctx *gin.Context) {
 	err := ctx.ShouldBindJSON(&user)
 
 	if err != nil {
-		common.FailResponse(ctx, common.WithFailResponseHttpCode(http.StatusBadRequest), common.WithFailResponseMessage(err.Error()))
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage(err.Error()),
+		)
 		return
 	}
 
 	err = service.UserSvc.Register(&user)
 
 	if err != nil {
-		common.FailResponse(ctx, common.WithFailResponseHttpCode(http.StatusBadRequest), common.WithFailResponseMessage(err.Error()))
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage(err.Error()),
+		)
 		return
 	}
 
-	common.SuccessResponse(ctx, common.WithSuccessResponseHttpCode(http.StatusCreated), common.WithSuccessResponseData(map[string]any{
-		"username": user.Username,
-		"uuid":     user.Uuid,
-		"createAt": user.BaseModel.CreatedAt,
-	}))
+	common.SuccessResponse(
+		ctx, common.WithSuccessResponseHttpCode(http.StatusCreated),
+		common.WithSuccessResponseData(map[string]any{
+			"username": user.Username,
+			"uuid":     user.Uuid,
+			"createAt": user.BaseModel.CreatedAt,
+		}),
+	)
 }
