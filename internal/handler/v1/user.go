@@ -10,15 +10,15 @@ import (
 	"github.com/shy-robin/gochat/pkg/common"
 )
 
-// @Summary      注册用户
-// @Description  传入参数，注册用户
-// @Tags         users
-// @Accept       json
-// @Produce      json
-// @Param        request   body      dto.CreateUserRequest  true  "请求参数"
-// @Success      201  {object}  dto.CreateUserResponse
-// @Failure      400  {object}  common.BadRequestResponse
-// @Router       /users [post]
+// @Summary		注册用户
+// @Description	传入参数，注册用户
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			request	body		dto.CreateUserRequest	true	"请求参数"
+// @Success		201		{object}	dto.CreateUserResponse
+// @Failure		400		{object}	common.BadRequestResponse
+// @Router			/users [post]
 func Register(ctx *gin.Context) {
 	var user dto.CreateUserRequest
 	// 会经过 json 解析，binding 校验，如果不通过则会报错

@@ -2,12 +2,13 @@ package log
 
 import (
 	"fmt"
-	"go.uber.org/zap"
-	"go.uber.org/zap/buffer"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"strings"
 	"time"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/buffer"
+	"go.uber.org/zap/zapcore"
 )
 
 // zap 的使用参考：bilibili.com/video/BV1Rk99YHEM6

@@ -9,27 +9,27 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/shy-robin/gochat/config"
 	"github.com/shy-robin/gochat/docs"
-	"github.com/shy-robin/gochat/internal/handler/v1"
+	v1 "github.com/shy-robin/gochat/internal/handler/v1"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-// @title           GoChat Swagger API
-// @version         1.0
-// @description     This is the Swagger API docs for the GoChat API.
-// @termsOfService  http://swagger.io/terms/
+//	@title			GoChat Swagger API
+//	@version		1.0
+//	@description	This is the Swagger API docs for the GoChat API.
+//	@termsOfService	http://swagger.io/terms/
 
-// @contact.name   API Support
-// @contact.url    http://www.swagger.io/support
-// @contact.email  support@swagger.io
+//	@contact.name	API Support
+//	@contact.url	http://www.swagger.io/support
+//	@contact.email	support@swagger.io
 
-// @license.name  Apache 2.0
-// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+//	@license.name	Apache 2.0
+//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @securityDefinitions.basic  BasicAuth
+//	@securityDefinitions.basic	BasicAuth
 
-// @externalDocs.description  OpenAPI
-// @externalDocs.url          https://swagger.io/resources/open-api/
+// @externalDocs.description	OpenAPI
+// @externalDocs.url			https://swagger.io/resources/open-api/
 func NewRouter() *gin.Engine {
 	ginServer := gin.Default()
 
