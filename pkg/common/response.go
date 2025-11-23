@@ -30,6 +30,11 @@ type Response struct {
 	Details any `json:"details,omitempty"`
 }
 
+type BadRequestResponse struct {
+	Status  string `json:"status" example:"error"`
+	Message string `json:"message" example:"参数错误"`
+}
+
 type SuccessResponseConfig struct {
 	HttpCode int
 	Data     any

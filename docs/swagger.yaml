@@ -1,0 +1,93 @@
+basePath: /api/v1
+definitions:
+  common.BadRequestResponse:
+    properties:
+      message:
+        example: 参数错误
+        type: string
+      status:
+        example: error
+        type: string
+    type: object
+  dto.CreateUserRequest:
+    properties:
+      avatar:
+        example: https://avatars.githubusercontent.com/u/123456?v=4
+        type: string
+      email:
+        example: robin@qq.com
+        type: string
+      nickname:
+        example: robin
+        type: string
+      password:
+        example: "123456"
+        type: string
+      username:
+        example: robin
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.CreateUserResponse:
+    properties:
+      createAt:
+        description: 可能需要格式化为字符串
+        example: 2025-11-23T15:53:56.811
+        type: string
+      username:
+        description: '注意: 响应中不包含 PasswordHash'
+        example: robin
+        type: string
+      uuid:
+        example: db376853-8f93-41f9-9a44-3c5ad8eedbbb
+        type: string
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8083
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is the Swagger API docs for the GoChat API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: GoChat Swagger API
+  version: "1.0"
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: 传入参数，注册用户
+      parameters:
+      - description: 请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/common.BadRequestResponse'
+      summary: 注册用户
+      tags:
+      - users
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"
