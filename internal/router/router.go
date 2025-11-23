@@ -33,6 +33,11 @@ import (
 func NewRouter() *gin.Engine {
 	ginServer := gin.Default()
 
+	// 添加 Recovery 中间件，捕获并恢复程序，防止整个 Web 服务崩溃
+	// 您的 Go 进程不会终止，而是会向客户端返回 HTTP 500 错误
+	// 同时，您会在控制台中看到 Recovery 中间件打印的堆栈跟踪日志
+	// ginServer.Use(gin.Recovery()) // NOTE: gin.Default() 默认包含了 gin.Recovery() 中间件，因此不需要重复添加
+
 	// ginServer.Use(enableCORS())
 
 	ginServer.Use(cors.New(cors.Config{
