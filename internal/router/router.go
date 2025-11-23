@@ -1,7 +1,10 @@
 package router
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
+	"github.com/shy-robin/gochat/config"
 	"github.com/shy-robin/gochat/docs"
 	"github.com/shy-robin/gochat/internal/handler/v1"
 	swaggerFiles "github.com/swaggo/files"
@@ -20,9 +23,6 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
-// @host      localhost:8083
-// @BasePath  /api/v1
-
 // @securityDefinitions.basic  BasicAuth
 
 // @externalDocs.description  OpenAPI
@@ -37,8 +37,9 @@ func NewRouter() *gin.Engine {
 	}
 
 	// programatically set swagger info
-	docs.SwaggerInfo.Host = "petstore.swagger.io"
-	docs.SwaggerInfo.BasePath = "/v1"
+	apiConfig := config.GetConfig().Api
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", apiConfig.Host, apiConfig.Port)
+	docs.SwaggerInfo.BasePath = apiConfig.Prefix
 
 	ginServer.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 

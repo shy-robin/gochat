@@ -9,6 +9,7 @@ type TomlConfig struct {
 	AppName string
 	Log     LogConfig
 	MySQL   MySQLConfig
+	Api     ApiConfig
 }
 
 // 日志存储地址
@@ -28,9 +29,16 @@ type MySQLConfig struct {
 	Timeout     string
 }
 
+// 接口配置
+type ApiConfig struct {
+	Host   string
+	Port   int
+	Prefix string
+}
+
 var c TomlConfig
 
-func init() {
+func InitConfig() {
 	// 设置文件名
 	viper.SetConfigName("config")
 	// 设置文件类型

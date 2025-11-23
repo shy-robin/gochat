@@ -12,3 +12,8 @@ port = 3306
 tablePrefix = ""
 user = "root"
 timeout = "10s"
+
+[api]
+host = "127.0.0.1"
+port = 8083
+prefix = "/api/v1"
