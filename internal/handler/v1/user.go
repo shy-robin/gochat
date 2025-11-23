@@ -15,9 +15,9 @@ import (
 // @Tags			users
 // @Accept			json
 // @Produce		json
-// @Param			request	body		dto.CreateUserRequest	true	"请求参数"
-// @Success		201		{object}	dto.CreateUserResponse
-// @Failure		400		{object}	common.BadRequestResponse
+// @Param			request	body		dto.CreateUserRequest		true	"请求参数"
+// @Success		201		{object}	dto.CreateUserResponse		"注册成功"
+// @Failure		400		{object}	common.BadRequestResponse	"参数错误"
 // @Router			/users [post]
 func Register(ctx *gin.Context) {
 	var user dto.CreateUserRequest
@@ -57,7 +57,7 @@ func Register(ctx *gin.Context) {
 	// 注册成功
 	common.SuccessResponse(
 		ctx, common.WithSuccessResponseHttpCode(http.StatusCreated),
-		common.WithSuccessResponseData(dto.CreateUserResponse{
+		common.WithSuccessResponseData(dto.CreateUserResponseData{
 			Username: userEntity.Username,
 			Uuid:     userEntity.Uuid,
 			CreateAt: userEntity.BaseModel.CreatedAt,
@@ -65,6 +65,15 @@ func Register(ctx *gin.Context) {
 	)
 }
 
+// @Summary		用户登录
+// @Description	传入参数，用户登录
+// @Tags			accounts
+// @Accept			json
+// @Produce		json
+// @Param			request	body		dto.LoginRequest			true	"请求参数"
+// @Success		201		{object}	dto.LoginResponse			"登录成功"
+// @Failure		400		{object}	common.BadRequestResponse	"参数错误"
+// @Router			/sessions [post]
 func Login(ctx *gin.Context) {
 	var params dto.LoginRequest
 
@@ -95,7 +104,7 @@ func Login(ctx *gin.Context) {
 	// 登录成功
 	common.SuccessResponse(
 		ctx, common.WithSuccessResponseHttpCode(http.StatusCreated),
-		common.WithSuccessResponseData(dto.LoginResponse{
+		common.WithSuccessResponseData(dto.LoginResponseData{
 			Token:    token,
 			ExpireAt: expireTime,
 		}),
