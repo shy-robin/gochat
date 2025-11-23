@@ -64,3 +64,40 @@ func Register(ctx *gin.Context) {
 		}),
 	)
 }
+
+func Login(ctx *gin.Context) {
+	var params dto.LoginRequest
+
+	err := ctx.ShouldBindJSON(&params)
+
+	// 参数校验失败
+	if err != nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage(err.Error()),
+		)
+		return
+	}
+
+	token, expireTime, loginErr := service.UserSvc.Login(&params)
+
+	// 数据库操作失败
+	if loginErr != nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage(loginErr.Error()),
+		)
+		return
+	}
+
+	// 登录成功
+	common.SuccessResponse(
+		ctx, common.WithSuccessResponseHttpCode(http.StatusCreated),
+		common.WithSuccessResponseData(dto.LoginResponse{
+			Token:    token,
+			ExpireAt: expireTime,
+		}),
+	)
+}

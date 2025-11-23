@@ -11,6 +11,7 @@ type TomlConfig struct {
 	Log     LogConfig
 	MySQL   MySQLConfig
 	Api     ApiConfig
+	Jwt     JWTConfig
 }
 
 // 日志存储地址
@@ -35,6 +36,12 @@ type ApiConfig struct {
 	Host   string
 	Port   int
 	Prefix string
+}
+
+// jwt 配置
+type JWTConfig struct {
+	Secret     string
+	ExpireTime int
 }
 
 var c TomlConfig

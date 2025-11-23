@@ -9,3 +9,13 @@ Content-Type: application/json
   "nickname": "robin2",
   "avatar": "https://avatars.githubusercontent.com/u/123456?v=4"
 }
+
+### 用户登录
+
+POST /sessions HTTP/1.1
+Content-Type: application/json
+
+{
+  "username": "robin6",
+  "password": "123456"
+}

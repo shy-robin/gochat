@@ -17,3 +17,7 @@ timeout = "10s"
 host = "127.0.0.1"
 port = 8083
 prefix = "/api/v1"
+
+[jwt]
+secret = "shy-robin"
+expireTime = 24 # 单位: 小时

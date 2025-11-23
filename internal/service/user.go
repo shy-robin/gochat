@@ -4,8 +4,10 @@ import (
 	"errors"
 
 	"github.com/shy-robin/gochat/internal/db"
+	"github.com/shy-robin/gochat/internal/handler/v1/dto"
 	"github.com/shy-robin/gochat/internal/model"
 	"github.com/shy-robin/gochat/internal/repository"
+	"github.com/shy-robin/gochat/pkg/common"
 	"gorm.io/gorm"
 )
 
@@ -37,6 +39,35 @@ func (this *UserService) Register(user *model.User) error {
 	})
 
 	return txErr
+}
+
+func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) {
+	existingUser, err := repository.UserRepo.FindByUsername(params.Username)
+	defaultToken := ""
+	defaultExpireTime := int64(0)
+
+	if err != nil {
+		return defaultToken, defaultExpireTime, errors.New("查询用户失败")
+	}
+
+	if existingUser == nil {
+		return defaultToken, defaultExpireTime, errors.New("用户名不存在")
+	}
+
+	isPasswordCorrect := existingUser.CheckPassword(params.Password)
+
+	if !isPasswordCorrect {
+		return defaultToken, defaultExpireTime, errors.New("密码错误")
+	}
+
+	// 生成 Token
+	token, expireTime, tokenErr := common.GenerateToken(existingUser.Uuid, existingUser.Username)
+
+	if tokenErr != nil {
+		return defaultToken, defaultExpireTime, tokenErr
+	}
+
+	return token, expireTime, nil
 }
 
 // 分配内存，初始化零值并返回指针

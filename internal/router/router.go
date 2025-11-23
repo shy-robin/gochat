@@ -55,6 +55,7 @@ func NewRouter() *gin.Engine {
 		group1 := ginServer.Group("/api/v1")
 
 		group1.POST("/users", v1.Register)
+		group1.POST("/sessions", v1.Login)
 	}
 
 	// programatically set swagger info
