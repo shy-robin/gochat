@@ -3,7 +3,9 @@ package router
 import (
 	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/shy-robin/gochat/config"
 	"github.com/shy-robin/gochat/docs"
@@ -31,7 +33,23 @@ import (
 func NewRouter() *gin.Engine {
 	ginServer := gin.Default()
 
-	ginServer.Use(enableCORS())
+	// ginServer.Use(enableCORS())
+
+	ginServer.Use(cors.New(cors.Config{
+		// 必须配置项
+		AllowOrigins: []string{
+			"http://localhost:8083",
+			// "https://your-frontend-domain.com", // 允许的前端域名
+		},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // 允许的方法
+		AllowHeaders: []string{"Origin", "Content-Type", "Authorization"}, // 允许的头部
+
+		// 核心配置项：设置预检请求的缓存时间为 12 小时 (43200 秒)
+		MaxAge: 12 * time.Hour,
+
+		// 可选配置项
+		AllowCredentials: true, // 如果需要发送 Cookie 或 HTTP 认证信息
+	}))
 
 	{
 		group1 := ginServer.Group("/api/v1")
@@ -79,6 +97,8 @@ func enableCORS() gin.HandlerFunc {
 		// 如果是预检请求 (OPTIONS)，直接返回 200/204 状态码
 		// 正确的预检响应：应该只有 CORS 头部，响应体为空，状态码为 200 OK 或 204 No Content
 		// 预检请求只是一个“问路”的请求，它不应该消耗任何业务资源
+		// 只有非简单请求，才会发送预检请求，并且预检请求会有缓存机制（Access-Control-Max-Age）
+		// 核心原则： 当您更改 CORS 策略时，所有用户的浏览器必须等待 Max-Age 时间过后才能获取最新的策略。长时间缓存可能导致用户在缓存期间无法访问新配置的 API。
 		if method == "OPTIONS" {
 			ctx.JSON(http.StatusOK, "ok")
 		}
