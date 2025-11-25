@@ -44,6 +44,7 @@ func NewRouter() *gin.Engine {
 		// 必须配置项
 		AllowOrigins: []string{
 			"http://localhost:8083",
+			"http://localhost:3000",
 			// "https://your-frontend-domain.com", // 允许的前端域名
 		},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"}, // 允许的方法
