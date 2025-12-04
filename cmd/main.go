@@ -6,6 +6,7 @@ import (
 	"github.com/shy-robin/gochat/config"
 	"github.com/shy-robin/gochat/internal/db"
 	"github.com/shy-robin/gochat/internal/router"
+	"github.com/shy-robin/gochat/pkg/common"
 	"github.com/shy-robin/gochat/pkg/global/log"
 )
 
@@ -23,6 +24,7 @@ func main() {
 
 	// 初始化路由
 	ginServer := router.NewRouter()
+	common.SetupCustomValidator(ginServer)
 
 	// 启动服务
 	apiConfig := config.GetConfig().Api
