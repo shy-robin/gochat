@@ -1,7 +1,9 @@
 package common
 
 import (
+	"fmt"
 	"reflect"
+	"regexp"
 	"unicode"
 
 	"github.com/gin-gonic/gin"
@@ -14,8 +16,8 @@ func SetupCustomValidator(router *gin.Engine) {
 	// 通过 binding.Validator.Engine() 获取底层校验器实例
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		// 1. 注册自定义校验函数
-		v.RegisterValidation("password", ValidatePassword)
-		log.Logger.Info("自定义校验标签 'password' 注册成功")
+		RegisterValidation(v, "username", ValidateUsername)
+		RegisterValidation(v, "password", ValidatePassword)
 
 		// 2. 注册自定义标签名函数
 		// 告诉 validator 库，当生成校验错误时
@@ -27,10 +29,42 @@ func SetupCustomValidator(router *gin.Engine) {
 			}
 			return name
 		})
+
 		log.Logger.Info("自定义标签名函数注册成功")
 	} else {
 		log.Logger.Warn("无法获取底层的 go-playground/validator 实例")
 	}
+}
+
+func RegisterValidation(v *validator.Validate, name string, fn validator.Func) {
+	if err := v.RegisterValidation(name, fn); err != nil {
+		log.Logger.Error(fmt.Sprintf("注册自定义校验函数 '%s' 失败", name), log.Any("error", err))
+	} else {
+		log.Logger.Info(fmt.Sprintf("自定义校验标签 '%s' 注册成功", name))
+	}
+}
+
+// 校验用户名
+func ValidateUsername(fl validator.FieldLevel) bool {
+	username := fl.Field().String()
+	usernameRegex := regexp.MustCompile("^[a-zA-Z0-9](?:[a-zA-Z0-9_-]{2,14})[a-zA-Z0-9]$")
+
+	// 1. 正则表达式校验字符集和格式
+	if !usernameRegex.MatchString(username) {
+		return false
+	}
+
+	// 2. 保留字校验（简单示例）
+	reservedNames := map[string]bool{
+		"admin": true,
+		"root":  true,
+		"test":  true,
+	}
+	if reservedNames[username] {
+		return false
+	}
+
+	return true
 }
 
 // 校验密码

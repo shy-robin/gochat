@@ -5,9 +5,10 @@ import (
 )
 
 // CreateUserRequest 是创建用户接口的请求体 (DTO)
+// NOTE: 在 Gin 中，使用 binding 添加校验规则而不是 validate
 type CreateUserRequest struct {
-	Username string `json:"username" form:"username" binding:"required" example:"robin"`
-	Password string `json:"password" form:"password" binding:"required" example:"123456"`
+	Username string `json:"username" form:"username" example:"robin" binding:"required,min=2,max=20,username"`
+	Password string `json:"password" form:"password" example:"123456" binding:"required,password"`
 	Nickname string `json:"nickname" example:"robin"`
 	Avatar   string `json:"avatar" example:"https://avatars.githubusercontent.com/u/123456?v=4"`
 	Email    string `json:"email" example:"robin@qq.com"`
