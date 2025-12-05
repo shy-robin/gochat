@@ -29,4 +29,8 @@ swag fmt
 swag init -g ./internal/router/router.go
 ```
 
-4. 开发环境访问：<http://localhost:8083/swagger/index.html>
+1. 开发环境访问：<http://localhost:8083/swagger/index.html>
+
+## TODO
+
+- [ ] 完善日志
