@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
-	"unicode"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
@@ -70,13 +69,34 @@ func ValidateUsername(fl validator.FieldLevel) bool {
 // 校验密码
 func ValidatePassword(fl validator.FieldLevel) bool {
 	password := fl.Field().String()
-	hasDigit := false
-	for _, char := range password {
-		if unicode.IsDigit(char) {
-			hasDigit = true
-		}
+
+	// 检查是否包含至少三种字符类型：
+	// 1. 小写字母
+	hasLower := regexp.MustCompile(`[a-z]`).MatchString(password)
+	// 2. 大写字母
+	hasUpper := regexp.MustCompile(`[A-Z]`).MatchString(password)
+	// 3. 数字
+	hasDigit := regexp.MustCompile(`[0-9]`).MatchString(password)
+	// 4. 特殊字符 (非字母或数字)
+	hasSpecial := regexp.MustCompile(`[^a-zA-Z0-9]`).MatchString(password)
+
+	// 计算包含的类型数量
+	count := 0
+	if hasLower {
+		count++
 	}
-	return hasDigit
+	if hasUpper {
+		count++
+	}
+	if hasDigit {
+		count++
+	}
+	if hasSpecial {
+		count++
+	}
+
+	// 假设要求至少包含 3 种类型
+	return count >= 3
 }
 
 // 辅助函数：将校验错误转换为更友好的格式

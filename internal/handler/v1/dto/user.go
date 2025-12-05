@@ -8,7 +8,7 @@ import (
 // NOTE: 在 Gin 中，使用 binding 添加校验规则而不是 validate
 type CreateUserRequest struct {
 	Username string `json:"username" form:"username" example:"robin" binding:"required,min=2,max=20,username"`
-	Password string `json:"password" form:"password" example:"123456" binding:"required,password"`
+	Password string `json:"password" form:"password" example:"123456" binding:"required,min=8,password"`
 	Nickname string `json:"nickname" example:"robin"`
 	Avatar   string `json:"avatar" example:"https://avatars.githubusercontent.com/u/123456?v=4"`
 	Email    string `json:"email" example:"robin@qq.com"`
