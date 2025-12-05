@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/shy-robin/gochat/pkg/global/log"
 )
 
 func SetupCustomValidator(router *gin.Engine) {
@@ -14,8 +15,7 @@ func SetupCustomValidator(router *gin.Engine) {
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		// 1. 注册自定义校验函数
 		v.RegisterValidation("password", ValidatePassword)
-		// TODO: log
-		// log.Println("自定义校验标签 'complexity' 注册成功。")
+		log.Logger.Info("自定义校验标签 'password' 注册成功")
 
 		// 2. 注册自定义标签名函数
 		// 告诉 validator 库，当生成校验错误时
@@ -27,11 +27,9 @@ func SetupCustomValidator(router *gin.Engine) {
 			}
 			return name
 		})
-		// TODO: log
-		// log.Println("自定义标签名函数注册成功。")
+		log.Logger.Info("自定义标签名函数注册成功")
 	} else {
-		// TODO: log
-		//log.Println("警告：无法获取底层的 go-playground/validator 实例。")
+		log.Logger.Warn("无法获取底层的 go-playground/validator 实例")
 	}
 }
 
