@@ -29,6 +29,11 @@ func Register(ctx *gin.Context) {
 	// Gin 会自动尝试解析 JSON 到 req 结构体，并根据 `validate` 标签进行校验。
 	err := ctx.ShouldBindJSON(&user)
 
+	// 数据脱敏
+	logUser := user
+	logUser.Password = "******"
+	log.Logger.Info("注册用户", log.Any("user", logUser))
+
 	// 参数校验失败
 	if err != nil {
 		// 2. 处理错误
@@ -80,6 +85,8 @@ func Register(ctx *gin.Context) {
 			common.WithFailResponseHttpCode(http.StatusBadRequest),
 			common.WithFailResponseMessage(err.Error()),
 		)
+
+		log.Logger.Error("注册用户", log.Any("数据库操作失败", err))
 		return
 	}
 
@@ -92,6 +99,10 @@ func Register(ctx *gin.Context) {
 			CreateAt: userEntity.BaseModel.CreatedAt,
 		}),
 	)
+
+	// 数据脱敏
+	userEntity.Password = "******"
+	log.Logger.Info("注册用户", log.Any("注册成功", userEntity))
 }
 
 // @Summary		用户登录
