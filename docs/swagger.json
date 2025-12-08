@@ -26,7 +26,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "users"
                 ],
                 "summary": "用户登录",
                 "parameters": [
@@ -106,7 +106,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "users"
                 ],
                 "summary": "获取用户信息",
                 "responses": {
@@ -141,7 +141,7 @@
                     "application/json"
                 ],
                 "tags": [
-                    "accounts"
+                    "users"
                 ],
                 "summary": "获取当前用户信息",
                 "responses": {

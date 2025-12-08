@@ -159,7 +159,7 @@ paths:
             $ref: '#/definitions/common.BadRequestResponse'
       summary: 用户登录
       tags:
-      - accounts
+      - users
   /users:
     post:
       consumes:
@@ -208,7 +208,7 @@ paths:
             $ref: '#/definitions/common.UnauthorizedResponse'
       summary: 获取用户信息
       tags:
-      - accounts
+      - users
   /users/me:
     get:
       consumes:
@@ -231,7 +231,7 @@ paths:
             $ref: '#/definitions/common.UnauthorizedResponse'
       summary: 获取当前用户信息
       tags:
-      - accounts
+      - users
 securityDefinitions:
   BasicAuth:
     type: basic

@@ -108,7 +108,7 @@ func Register(ctx *gin.Context) {
 
 // @Summary		用户登录
 // @Description	传入参数，用户登录
-// @Tags			accounts
+// @Tags			users
 // @Accept			json
 // @Produce		json
 // @Param			request	body		dto.LoginRequest			true	"请求参数"
@@ -164,7 +164,7 @@ func Login(ctx *gin.Context) {
 
 // @Summary		获取当前用户信息
 // @Description	传入参数，获取当前用户信息
-// @Tags			accounts
+// @Tags			users
 // @Accept			json
 // @Produce		json
 // @Success		201	{object}	dto.GetUserInfoResponse		"获取成功"
@@ -209,7 +209,7 @@ func GetUsersMe(ctx *gin.Context) {
 
 // @Summary		获取用户信息
 // @Description	传入参数，获取用户信息
-// @Tags			accounts
+// @Tags			users
 // @Accept			json
 // @Produce		json
 // @Success		201	{object}	dto.GetUserInfoResponse		"获取成功"
