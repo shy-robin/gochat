@@ -10,9 +10,9 @@ import (
 type CreateUserRequest struct {
 	Username string `json:"username" form:"username" example:"robin" binding:"required,min=2,max=20,username"`
 	Password string `json:"password" form:"password" example:"123456" binding:"required,min=8,max=50,password"`
-	Nickname string `json:"nickname" example:"robin" binding:"required,min=2,max=20"`
-	Avatar   string `json:"avatar" example:"https://avatars.githubusercontent.com/u/123456?v=4" binding:"url"`
-	Email    string `json:"email" example:"robin@qq.com" binding:"email"`
+	Nickname string `json:"nickname" example:"robin" binding:"omitempty,min=2,max=20"`
+	Avatar   string `json:"avatar" example:"https://avatars.githubusercontent.com/u/123456?v=4" binding:"omitempty,url"`
+	Email    string `json:"email" example:"robin@qq.com" binding:"omitempty,email"`
 }
 
 // CreateUserResponse  是返回给客户端的用户响应 (DTO)
