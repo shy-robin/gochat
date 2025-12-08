@@ -1,7 +1,6 @@
 package v1
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -197,6 +196,7 @@ func GetUsersMe(ctx *gin.Context) {
 		)
 
 		log.Logger.Error("获取当前用户信息", log.Any("数据库操作失败", err))
+		return
 	}
 
 	common.SuccessResponse(
@@ -217,12 +217,36 @@ func GetUsersMe(ctx *gin.Context) {
 // @Failure		401	{object}	common.UnauthorizedResponse	"鉴权失败"
 // @Router			/users/:id [get]
 func GetUsers(ctx *gin.Context) {
-	// TODO:
 	id := ctx.Param("id")
-	fmt.Println("xlb-test", id)
+
+	userInfo, err := service.UserSvc.GetUserInfo(id)
+
+	if err != nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage(err.Error()),
+		)
+
+		log.Logger.Error("获取当前用户信息", log.Any("数据库操作失败", err))
+		return
+	}
+
+	if userInfo == nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage("用户不存在"),
+		)
+
+		log.Logger.Error("获取当前用户信息", log.Any("参数校验失败", "用户不存在"))
+		return
+	}
 
 	common.SuccessResponse(
 		ctx,
-		common.WithSuccessResponseData(id),
+		common.WithSuccessResponseData(userInfo),
 	)
+
+	log.Logger.Info("获取当前用户信息", log.Any("获取成功", userInfo))
 }

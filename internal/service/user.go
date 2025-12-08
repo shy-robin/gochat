@@ -73,7 +73,7 @@ func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) 
 func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) {
 	user, err := repository.UserRepo.FindByUuid(uuid)
 
-	if err != nil {
+	if user == nil || err != nil {
 		return nil, err
 	}
 
