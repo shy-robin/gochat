@@ -44,5 +44,5 @@ Authorization: Bearer {{login.response.body.data.token}}
 Content-Type: application/json
 
 {
-  "email": "test@qq.com"
+  "password": "test@qq.com1A11"
 }

@@ -27,9 +27,12 @@ definitions:
         type: string
       nickname:
         example: robin
+        maxLength: 20
+        minLength: 2
         type: string
       password:
         example: "123456"
+        maxLength: 50
         minLength: 8
         type: string
       username:
@@ -38,6 +41,7 @@ definitions:
         minLength: 2
         type: string
     required:
+    - nickname
     - password
     - username
     type: object
@@ -116,6 +120,48 @@ definitions:
         type: integer
       token:
         example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb2NoYXQtYXBpLXNlcnZpY2UiLCJleHAiOjE3NjM5OTc1MTksImlhdCI6MTc2MzkxMTExOSwidXNlcklkIjoiY2YzZDE1ZmMtM2ZlYS00NDkzLWFjMDMtYzBiMjkzYTBjNjc4IiwidXNlcm5hbWUiOiJyb2JpbjYifQ.Rddl8mxWIPBWYCIO5TQYTG8uvyyPbP3FF9ozGdfytwg
+        type: string
+    type: object
+  dto.ModifyUserInfoData:
+    properties:
+      avatar:
+        example: https://avatars.githubusercontent.com/u/123456?v=4
+        type: string
+      email:
+        example: robin@test.com
+        type: string
+      nickname:
+        example: robin
+        type: string
+    type: object
+  dto.ModifyUserInfoRequest:
+    properties:
+      avatar:
+        example: https://avatars.githubusercontent.com/u/123456?v=4
+        type: string
+      email:
+        example: robin@test.com
+        type: string
+      nickname:
+        example: robin
+        maxLength: 20
+        minLength: 2
+        type: string
+      password:
+        description: |-
+          NOTE: omitempty 标签告诉 JSON 编码器在 nil 时忽略该字段
+          如果参数需要可选，否则参数一定会校验。
+        example: "123456"
+        maxLength: 50
+        minLength: 8
+        type: string
+    type: object
+  dto.ModifyUserInfoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.ModifyUserInfoData'
+      status:
+        example: success
         type: string
     type: object
 externalDocs:
@@ -230,6 +276,35 @@ paths:
           schema:
             $ref: '#/definitions/common.UnauthorizedResponse'
       summary: 获取当前用户信息
+      tags:
+      - users
+    patch:
+      consumes:
+      - application/json
+      description: 传入参数，修改当前信息
+      parameters:
+      - description: 请求参数
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ModifyUserInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/dto.ModifyUserInfoResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/common.BadRequestResponse'
+        "401":
+          description: 鉴权失败
+          schema:
+            $ref: '#/definitions/common.UnauthorizedResponse'
+      summary: 修改当前用户信息
       tags:
       - users
 securityDefinitions:

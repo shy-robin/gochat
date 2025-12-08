@@ -256,10 +256,10 @@ func GetUsers(ctx *gin.Context) {
 // @Tags			users
 // @Accept			json
 // @Produce		json
-// @Param			request	body		dto.ModifyUserInfoRequest		true	"请求参数"
-// @Success		201	{object}	dto.ModifyUserInfoResponse		"获取成功"
-// @Failure		400	{object}	common.BadRequestResponse	"参数错误"
-// @Failure		401	{object}	common.UnauthorizedResponse	"鉴权失败"
+// @Param			request	body		dto.ModifyUserInfoRequest	true	"请求参数"
+// @Success		201		{object}	dto.ModifyUserInfoResponse	"获取成功"
+// @Failure		400		{object}	common.BadRequestResponse	"参数错误"
+// @Failure		401		{object}	common.UnauthorizedResponse	"鉴权失败"
 // @Router			/users/me [patch]
 func ModifyUsersMe(ctx *gin.Context) {
 	var params dto.ModifyUserInfoRequest

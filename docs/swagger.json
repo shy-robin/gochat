@@ -164,6 +164,50 @@
                         }
                     }
                 }
+            },
+            "patch": {
+                "description": "传入参数，修改当前信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "修改当前用户信息",
+                "parameters": [
+                    {
+                        "description": "请求参数",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.ModifyUserInfoRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "获取成功",
+                        "schema": {
+                            "$ref": "#/definitions/dto.ModifyUserInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadRequestResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "鉴权失败",
+                        "schema": {
+                            "$ref": "#/definitions/common.UnauthorizedResponse"
+                        }
+                    }
+                }
             }
         }
     },
@@ -197,6 +241,7 @@
         "dto.CreateUserRequest": {
             "type": "object",
             "required": [
+                "nickname",
                 "password",
                 "username"
             ],
@@ -211,10 +256,13 @@
                 },
                 "nickname": {
                     "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2,
                     "example": "robin"
                 },
                 "password": {
                     "type": "string",
+                    "maxLength": 50,
                     "minLength": 8,
                     "example": "123456"
                 },
@@ -333,6 +381,61 @@
                 "token": {
                     "type": "string",
                     "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb2NoYXQtYXBpLXNlcnZpY2UiLCJleHAiOjE3NjM5OTc1MTksImlhdCI6MTc2MzkxMTExOSwidXNlcklkIjoiY2YzZDE1ZmMtM2ZlYS00NDkzLWFjMDMtYzBiMjkzYTBjNjc4IiwidXNlcm5hbWUiOiJyb2JpbjYifQ.Rddl8mxWIPBWYCIO5TQYTG8uvyyPbP3FF9ozGdfytwg"
+                }
+            }
+        },
+        "dto.ModifyUserInfoData": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "https://avatars.githubusercontent.com/u/123456?v=4"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "robin@test.com"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "robin"
+                }
+            }
+        },
+        "dto.ModifyUserInfoRequest": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "https://avatars.githubusercontent.com/u/123456?v=4"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "robin@test.com"
+                },
+                "nickname": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2,
+                    "example": "robin"
+                },
+                "password": {
+                    "description": "NOTE: omitempty 标签告诉 JSON 编码器在 nil 时忽略该字段\n如果参数需要可选，否则参数一定会校验。",
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 8,
+                    "example": "123456"
+                }
+            }
+        },
+        "dto.ModifyUserInfoResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.ModifyUserInfoData"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         }
