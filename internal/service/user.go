@@ -86,6 +86,23 @@ func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) 
 	}, err
 }
 
+func (this *UserService) ModifyUserInfo(
+	uuid string,
+	updates dto.ModifyUserInfoRequest,
+) (*dto.ModifyUserInfoData, error) {
+	userInfo, err := repository.UserRepo.UpdatesByUuid(uuid, updates)
+
+	if userInfo == nil {
+		return nil, err
+	}
+
+	return &dto.ModifyUserInfoData{
+		Nickname: userInfo.Nickname,
+		Avatar:   userInfo.Avatar,
+		Email:    userInfo.Email,
+	}, err
+}
+
 // 分配内存，初始化零值并返回指针
 // var UserSvc = new(UserService)
 var UserSvc = &UserService{}

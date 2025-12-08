@@ -35,3 +35,4 @@ swag init -g ./internal/router/router.go
 
 - [x] 完善日志
 - [x] 验证 token 时效
+- [ ] 零值陷阱

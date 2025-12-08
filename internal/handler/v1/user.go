@@ -250,3 +250,63 @@ func GetUsers(ctx *gin.Context) {
 
 	log.Logger.Info("获取当前用户信息", log.Any("获取成功", userInfo))
 }
+
+// @Summary		修改当前用户信息
+// @Description	传入参数，修改当前信息
+// @Tags			users
+// @Accept			json
+// @Produce		json
+// @Param			request	body		dto.ModifyUserInfoRequest		true	"请求参数"
+// @Success		201	{object}	dto.ModifyUserInfoResponse		"获取成功"
+// @Failure		400	{object}	common.BadRequestResponse	"参数错误"
+// @Failure		401	{object}	common.UnauthorizedResponse	"鉴权失败"
+// @Router			/users/me [patch]
+func ModifyUsersMe(ctx *gin.Context) {
+	var params dto.ModifyUserInfoRequest
+
+	if err := ctx.ShouldBindJSON(&params); err != nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage("参数校验失败"),
+		)
+
+		log.Logger.Error("修改当前用户信息", log.Any("参数校验失败", err))
+		return
+	}
+
+	userIdValue, ok := ctx.Get("userId")
+
+	if !ok {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusUnauthorized),
+			common.WithFailResponseMessage("鉴权失败"),
+		)
+
+		log.Logger.Error("修改当前用户信息", log.Any("鉴权失败", "用户 ID 不存在"))
+		return
+	}
+
+	userId := userIdValue.(string)
+
+	userInfo, err := service.UserSvc.ModifyUserInfo(userId, params)
+
+	if err != nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusInternalServerError),
+			common.WithFailResponseMessage(err.Error()),
+		)
+
+		log.Logger.Error("修改当前用户信息", log.Any("数据库操作失败", err))
+		return
+	}
+
+	common.SuccessResponse(
+		ctx,
+		common.WithSuccessResponseData(userInfo),
+	)
+
+	log.Logger.Info("修改当前用户信息", log.Any("修改成功", userInfo))
+}

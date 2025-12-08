@@ -70,6 +70,7 @@ func NewRouter() *gin.Engine {
 			userGroup.GET("/:id", v1.GetUsers)
 			// 私有访问：获取当前用户信息（需要认证）
 			userGroup.GET("/me", middleware.JWTAuthMiddleware(), v1.GetUsersMe)
+			userGroup.PATCH("/me", middleware.JWTAuthMiddleware(), v1.ModifyUsersMe)
 		}
 	}
 
