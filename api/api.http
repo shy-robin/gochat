@@ -4,7 +4,7 @@ POST /users HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "admin4",
+  "username": "admin5",
   "password": "xxx15678aA",
   "nickname": "robin2",
   "avatar": "https://avatars.githubusercontent.com/u/123456?v=4"
@@ -16,6 +16,6 @@ POST /sessions HTTP/1.1
 Content-Type: application/json
 
 {
-  "username": "robin6",
-  "password": "123456"
+  "username": "admin5",
+  "password": "xxx15678aA"
 }

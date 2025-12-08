@@ -32,7 +32,7 @@ func Register(ctx *gin.Context) {
 	// 数据脱敏
 	logUser := user
 	logUser.Password = "******"
-	log.Logger.Info("注册用户", log.Any("user", logUser))
+	log.Logger.Info("注册用户", log.Any("传参", logUser))
 
 	// 参数校验失败
 	if err != nil {
@@ -119,13 +119,19 @@ func Login(ctx *gin.Context) {
 
 	err := ctx.ShouldBindJSON(&params)
 
+	logParams := params
+	logParams.Password = "******"
+	log.Logger.Info("登录", log.Any("传参", logParams))
+
 	// 参数校验失败
 	if err != nil {
 		common.FailResponse(
 			ctx,
 			common.WithFailResponseHttpCode(http.StatusBadRequest),
-			common.WithFailResponseMessage(err.Error()),
+			common.WithFailResponseMessage("参数校验失败"),
 		)
+
+		log.Logger.Error("登录", log.Any("参数校验失败", err))
 		return
 	}
 
@@ -138,6 +144,8 @@ func Login(ctx *gin.Context) {
 			common.WithFailResponseHttpCode(http.StatusBadRequest),
 			common.WithFailResponseMessage(loginErr.Error()),
 		)
+
+		log.Logger.Error("登录", log.Any("数据库操作失败", loginErr))
 		return
 	}
 
@@ -149,4 +157,6 @@ func Login(ctx *gin.Context) {
 			ExpireAt: expireTime,
 		}),
 	)
+
+	log.Logger.Info("登录", log.Any("登录成功", expireTime))
 }
