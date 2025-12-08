@@ -35,6 +35,11 @@ type BadRequestResponse struct {
 	Message string `json:"message" example:"参数错误"`
 }
 
+type UnauthorizedResponse struct {
+	Status  string `json:"status" example:"error"`
+	Message string `json:"message" example:"鉴权失败"`
+}
+
 type SuccessResponseConfig struct {
 	HttpCode int
 	Data     any

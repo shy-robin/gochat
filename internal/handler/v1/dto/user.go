@@ -41,3 +41,16 @@ type LoginResponseData struct {
 	Token    string `json:"token" example:"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnb2NoYXQtYXBpLXNlcnZpY2UiLCJleHAiOjE3NjM5OTc1MTksImlhdCI6MTc2MzkxMTExOSwidXNlcklkIjoiY2YzZDE1ZmMtM2ZlYS00NDkzLWFjMDMtYzBiMjkzYTBjNjc4IiwidXNlcm5hbWUiOiJyb2JpbjYifQ.Rddl8mxWIPBWYCIO5TQYTG8uvyyPbP3FF9ozGdfytwg"`
 	ExpireAt int64  `json:"expireAt" example:"1763910483465"`
 }
+
+type GetUserInfoResponse struct {
+	Status string `json:"status" example:"success"`
+	Data   GetUserInfoData
+}
+
+type GetUserInfoData struct {
+	Username string `json:"username" example:"robin"`
+	Uuid     string `json:"uuid" example:"db376853-8f93-41f9-9a44-3c5ad8eedbbb"`
+	Nickname string `json:"nickname" example:"robin"`
+	Avatar   string `json:"avatar" example:"https://avatars.githubusercontent.com/u/123456?v=4"`
+	Email    string `json:"email" example:"robin@test.com"`
+}

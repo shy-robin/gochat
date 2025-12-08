@@ -70,6 +70,22 @@ func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) 
 	return token, expireTime, nil
 }
 
+func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) {
+	user, err := repository.UserRepo.FindByUuid(uuid)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &dto.GetUserInfoData{
+		Username: user.Username,
+		Uuid:     user.Uuid,
+		Nickname: user.Nickname,
+		Avatar:   user.Avatar,
+		Email:    user.Email,
+	}, err
+}
+
 // 分配内存，初始化零值并返回指针
 // var UserSvc = new(UserService)
 var UserSvc = &UserService{}

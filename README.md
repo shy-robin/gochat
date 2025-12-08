@@ -34,3 +34,4 @@ swag init -g ./internal/router/router.go
 ## TODO
 
 - [ ] 完善日志
+- [ ] 验证 token 时效

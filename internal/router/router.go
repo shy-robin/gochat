@@ -10,6 +10,7 @@ import (
 	"github.com/shy-robin/gochat/config"
 	"github.com/shy-robin/gochat/docs"
 	v1 "github.com/shy-robin/gochat/internal/handler/v1"
+	"github.com/shy-robin/gochat/internal/middleware"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
@@ -62,6 +63,14 @@ func NewRouter() *gin.Engine {
 
 		group1.POST("/users", v1.Register)
 		group1.POST("/sessions", v1.Login)
+
+		{
+			userGroup := group1.Group("/users")
+			// 公开访问：获取单个用户详情
+			userGroup.GET("/:id", v1.GetUsers)
+			// 私有访问：获取当前用户信息（需要认证）
+			userGroup.GET("/me", middleware.JWTAuthMiddleware(), v1.GetUsersMe)
+		}
 	}
 
 	// programatically set swagger info

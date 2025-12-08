@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -159,4 +160,69 @@ func Login(ctx *gin.Context) {
 	)
 
 	log.Logger.Info("登录", log.Any("登录成功", expireTime))
+}
+
+// @Summary		获取当前用户信息
+// @Description	传入参数，获取当前用户信息
+// @Tags			accounts
+// @Accept			json
+// @Produce		json
+// @Success		201	{object}	dto.GetUserInfoResponse		"获取成功"
+// @Failure		400	{object}	common.BadRequestResponse	"参数错误"
+// @Failure		401	{object}	common.UnauthorizedResponse	"鉴权失败"
+// @Router			/users/me [get]
+func GetUsersMe(ctx *gin.Context) {
+	userIdValue, ok := ctx.Get("userId")
+
+	if !ok {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusUnauthorized),
+			common.WithFailResponseMessage("鉴权失败"),
+		)
+
+		log.Logger.Error("获取当前用户信息", log.Any("鉴权失败", "用户 ID 不存在"))
+		return
+	}
+
+	userId := userIdValue.(string)
+
+	userInfo, err := service.UserSvc.GetUserInfo(userId)
+
+	if err != nil {
+		common.FailResponse(
+			ctx,
+			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseMessage(err.Error()),
+		)
+
+		log.Logger.Error("获取当前用户信息", log.Any("数据库操作失败", err))
+	}
+
+	common.SuccessResponse(
+		ctx,
+		common.WithSuccessResponseData(userInfo),
+	)
+
+	log.Logger.Info("获取当前用户信息", log.Any("获取成功", userInfo))
+}
+
+// @Summary		获取用户信息
+// @Description	传入参数，获取用户信息
+// @Tags			accounts
+// @Accept			json
+// @Produce		json
+// @Success		201	{object}	dto.GetUserInfoResponse		"获取成功"
+// @Failure		400	{object}	common.BadRequestResponse	"参数错误"
+// @Failure		401	{object}	common.UnauthorizedResponse	"鉴权失败"
+// @Router			/users/:id [get]
+func GetUsers(ctx *gin.Context) {
+	// TODO:
+	id := ctx.Param("id")
+	fmt.Println("xlb-test", id)
+
+	common.SuccessResponse(
+		ctx,
+		common.WithSuccessResponseData(id),
+	)
 }

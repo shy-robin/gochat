@@ -8,6 +8,15 @@ definitions:
         example: error
         type: string
     type: object
+  common.UnauthorizedResponse:
+    properties:
+      message:
+        example: 鉴权失败
+        type: string
+      status:
+        example: error
+        type: string
+    type: object
   dto.CreateUserRequest:
     properties:
       avatar:
@@ -21,9 +30,12 @@ definitions:
         type: string
       password:
         example: "123456"
+        minLength: 8
         type: string
       username:
         example: robin
+        maxLength: 20
+        minLength: 2
         type: string
     required:
     - password
@@ -49,6 +61,32 @@ definitions:
         type: string
       uuid:
         example: db376853-8f93-41f9-9a44-3c5ad8eedbbb
+        type: string
+    type: object
+  dto.GetUserInfoData:
+    properties:
+      avatar:
+        example: https://avatars.githubusercontent.com/u/123456?v=4
+        type: string
+      email:
+        example: robin@test.com
+        type: string
+      nickname:
+        example: robin
+        type: string
+      username:
+        example: robin
+        type: string
+      uuid:
+        example: db376853-8f93-41f9-9a44-3c5ad8eedbbb
+        type: string
+    type: object
+  dto.GetUserInfoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/dto.GetUserInfoData'
+      status:
+        example: success
         type: string
     type: object
   dto.LoginRequest:
@@ -148,6 +186,52 @@ paths:
       summary: 注册用户
       tags:
       - users
+  /users/:id:
+    get:
+      consumes:
+      - application/json
+      description: 传入参数，获取用户信息
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/dto.GetUserInfoResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/common.BadRequestResponse'
+        "401":
+          description: 鉴权失败
+          schema:
+            $ref: '#/definitions/common.UnauthorizedResponse'
+      summary: 获取用户信息
+      tags:
+      - accounts
+  /users/me:
+    get:
+      consumes:
+      - application/json
+      description: 传入参数，获取当前用户信息
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 获取成功
+          schema:
+            $ref: '#/definitions/dto.GetUserInfoResponse'
+        "400":
+          description: 参数错误
+          schema:
+            $ref: '#/definitions/common.BadRequestResponse'
+        "401":
+          description: 鉴权失败
+          schema:
+            $ref: '#/definitions/common.UnauthorizedResponse'
+      summary: 获取当前用户信息
+      tags:
+      - accounts
 securityDefinitions:
   BasicAuth:
     type: basic

@@ -95,6 +95,76 @@
                     }
                 }
             }
+        },
+        "/users/:id": {
+            "get": {
+                "description": "传入参数，获取用户信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "获取用户信息",
+                "responses": {
+                    "201": {
+                        "description": "获取成功",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetUserInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadRequestResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "鉴权失败",
+                        "schema": {
+                            "$ref": "#/definitions/common.UnauthorizedResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/me": {
+            "get": {
+                "description": "传入参数，获取当前用户信息",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "accounts"
+                ],
+                "summary": "获取当前用户信息",
+                "responses": {
+                    "201": {
+                        "description": "获取成功",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetUserInfoResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "参数错误",
+                        "schema": {
+                            "$ref": "#/definitions/common.BadRequestResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "鉴权失败",
+                        "schema": {
+                            "$ref": "#/definitions/common.UnauthorizedResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -104,6 +174,19 @@
                 "message": {
                     "type": "string",
                     "example": "参数错误"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "error"
+                }
+            }
+        },
+        "common.UnauthorizedResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "鉴权失败"
                 },
                 "status": {
                     "type": "string",
@@ -132,10 +215,13 @@
                 },
                 "password": {
                     "type": "string",
+                    "minLength": 8,
                     "example": "123456"
                 },
                 "username": {
                     "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2,
                     "example": "robin"
                 }
             }
@@ -168,6 +254,43 @@
                 "uuid": {
                     "type": "string",
                     "example": "db376853-8f93-41f9-9a44-3c5ad8eedbbb"
+                }
+            }
+        },
+        "dto.GetUserInfoData": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "https://avatars.githubusercontent.com/u/123456?v=4"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "robin@test.com"
+                },
+                "nickname": {
+                    "type": "string",
+                    "example": "robin"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "robin"
+                },
+                "uuid": {
+                    "type": "string",
+                    "example": "db376853-8f93-41f9-9a44-3c5ad8eedbbb"
+                }
+            }
+        },
+        "dto.GetUserInfoResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/dto.GetUserInfoData"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "success"
                 }
             }
         },

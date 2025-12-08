@@ -44,9 +44,14 @@ func ValidateToken(tokenString string) (*Claims, error) {
 	claims := &Claims{}
 	jwtConfig := config.GetConfig().Jwt
 
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (any, error) {
-		return jwtConfig.Secret, nil
-	})
+	token, err := jwt.ParseWithClaims(
+		tokenString,
+		claims,
+		func(token *jwt.Token) (any, error) {
+			// 需要将密码转换为 []byte 类型
+			return []byte(jwtConfig.Secret), nil
+		},
+	)
 
 	if err != nil {
 		return nil, err

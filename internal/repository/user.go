@@ -36,3 +36,16 @@ func (this *UserRepository) CreateUser(user *model.User) error {
 
 	return result.Error
 }
+
+func (this *UserRepository) FindByUuid(uuid string) (*model.User, error) {
+	db := db.GetDB()
+	user := &model.User{}
+
+	result := db.Where("uuid = ?", uuid).First(user)
+
+	if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return user, result.Error
+}
