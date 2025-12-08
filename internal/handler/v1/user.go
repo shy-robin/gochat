@@ -82,7 +82,7 @@ func Register(ctx *gin.Context) {
 	if err != nil {
 		common.FailResponse(
 			ctx,
-			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseHttpCode(http.StatusInternalServerError),
 			common.WithFailResponseMessage(err.Error()),
 		)
 
@@ -141,7 +141,7 @@ func Login(ctx *gin.Context) {
 	if loginErr != nil {
 		common.FailResponse(
 			ctx,
-			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseHttpCode(http.StatusInternalServerError),
 			common.WithFailResponseMessage(loginErr.Error()),
 		)
 
@@ -186,6 +186,8 @@ func GetUsersMe(ctx *gin.Context) {
 
 	userId := userIdValue.(string)
 
+	log.Logger.Info("获取当前用户信息", log.Any("传参", userId))
+
 	userInfo, err := service.UserSvc.GetUserInfo(userId)
 
 	if err != nil {
@@ -219,16 +221,18 @@ func GetUsersMe(ctx *gin.Context) {
 func GetUsers(ctx *gin.Context) {
 	id := ctx.Param("id")
 
+	log.Logger.Info("获取用户信息", log.Any("传参", id))
+
 	userInfo, err := service.UserSvc.GetUserInfo(id)
 
 	if err != nil {
 		common.FailResponse(
 			ctx,
-			common.WithFailResponseHttpCode(http.StatusBadRequest),
+			common.WithFailResponseHttpCode(http.StatusInternalServerError),
 			common.WithFailResponseMessage(err.Error()),
 		)
 
-		log.Logger.Error("获取当前用户信息", log.Any("数据库操作失败", err))
+		log.Logger.Error("获取用户信息", log.Any("数据库操作失败", err))
 		return
 	}
 
@@ -239,7 +243,7 @@ func GetUsers(ctx *gin.Context) {
 			common.WithFailResponseMessage("用户不存在"),
 		)
 
-		log.Logger.Error("获取当前用户信息", log.Any("参数校验失败", "用户不存在"))
+		log.Logger.Error("获取用户信息", log.Any("参数校验失败", "用户不存在"))
 		return
 	}
 
@@ -248,7 +252,7 @@ func GetUsers(ctx *gin.Context) {
 		common.WithSuccessResponseData(userInfo),
 	)
 
-	log.Logger.Info("获取当前用户信息", log.Any("获取成功", userInfo))
+	log.Logger.Info("获取用户信息", log.Any("获取成功", userInfo))
 }
 
 // @Summary		修改当前用户信息
@@ -263,6 +267,10 @@ func GetUsers(ctx *gin.Context) {
 // @Router			/users/me [patch]
 func ModifyUsersMe(ctx *gin.Context) {
 	var params dto.ModifyUserInfoRequest
+
+	logParams := params
+	logParams.Password = "******"
+	log.Logger.Error("修改当前用户信息", log.Any("传参", logParams))
 
 	if err := ctx.ShouldBindJSON(&params); err != nil {
 		common.FailResponse(
