@@ -7,7 +7,7 @@ path = "logs"
 [mysql]
 host = "127.0.0.1"
 name = "gochat"
-password = "123456"
+password = "Test_2025"
 port = 3306
 tablePrefix = ""
 user = "root"
