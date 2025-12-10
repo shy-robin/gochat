@@ -45,14 +45,12 @@ func Register(ctx *gin.Context) {
 
 			// 3. 提取并返回用户友好的错误信息
 			// 编写一个函数来处理这些错误，以便返回给客户端更清晰的信息。
-			// formattedErrors := common.FormatValidationErrors(validationErrors)
-			// jsonBytes, _ := json.Marshal(formattedErrors)
-			// errMsg := string(jsonBytes)
+			errMsg := common.FormatValidationErrors(validationErrors)
 
 			common.FailResponse(
 				ctx,
 				common.WithFailResponseHttpCode(http.StatusBadRequest),
-				common.WithFailResponseMessage("参数校验失败"),
+				common.WithFailResponseMessage(errMsg),
 			)
 
 			log.Logger.Error("注册用户", log.Any("参数校验失败", validationErrors))
@@ -125,6 +123,17 @@ func Login(ctx *gin.Context) {
 
 	// 参数校验失败
 	if err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errMsg := common.FormatValidationErrors(validationErrors)
+			common.FailResponse(
+				ctx,
+				common.WithFailResponseHttpCode(http.StatusBadRequest),
+				common.WithFailResponseMessage(errMsg),
+			)
+
+			log.Logger.Error("登录", log.Any("参数校验失败", validationErrors))
+			return
+		}
 		common.FailResponse(
 			ctx,
 			common.WithFailResponseHttpCode(http.StatusBadRequest),
@@ -273,6 +282,17 @@ func ModifyUsersMe(ctx *gin.Context) {
 	log.Logger.Error("修改当前用户信息", log.Any("传参", logParams))
 
 	if err := ctx.ShouldBindJSON(&params); err != nil {
+		if validationErrors, ok := err.(validator.ValidationErrors); ok {
+			errMsg := common.FormatValidationErrors(validationErrors)
+			common.FailResponse(
+				ctx,
+				common.WithFailResponseHttpCode(http.StatusBadRequest),
+				common.WithFailResponseMessage(errMsg),
+			)
+
+			log.Logger.Error("修改当前用户信息", log.Any("参数校验失败", validationErrors))
+			return
+		}
 		common.FailResponse(
 			ctx,
 			common.WithFailResponseHttpCode(http.StatusBadRequest),
