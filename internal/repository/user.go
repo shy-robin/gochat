@@ -10,7 +10,11 @@ import (
 	"gorm.io/gorm"
 )
 
-// Repository 层负责隔离数据库操作
+// NOTE: Repository 层负责隔离数据库操作
+// 错误处理：
+// - 职责：基础设施错误处理
+// - 错误载体：Go error
+// - 核心作用：仅传递数据库或外部服务错误
 
 type UserRepository struct {
 }

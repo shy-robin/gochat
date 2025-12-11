@@ -1,7 +1,7 @@
 package service
 
 import (
-	"errors"
+	"fmt"
 
 	"github.com/shy-robin/gochat/internal/db"
 	"github.com/shy-robin/gochat/internal/handler/v1/dto"
@@ -18,11 +18,11 @@ func (this *UserService) Register(user *model.User) error {
 	existingUser, err := repository.UserRepo.FindByUsername(user.Username)
 
 	if err != nil {
-		return errors.New("查询用户失败")
+		return common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by username failed: %w", err))
 	}
 
 	if existingUser != nil {
-		return errors.New("用户名已存在")
+		return common.ErrUsernameConflict
 	}
 
 	db := db.GetDB()
@@ -32,13 +32,13 @@ func (this *UserService) Register(user *model.User) error {
 	txErr := db.Transaction(func(tx *gorm.DB) error {
 		if err := repository.UserRepo.CreateUser(user); err != nil {
 			// 如果创建失败，返回错误，GORM 自动回滚 (ROLLBACK)
-			return err
+			return common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo create user failed: %w", err))
 		}
 		// 事务成功，GORM 自动提交 (COMMIT)
 		return nil
 	})
 
-	return txErr
+	return common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo transaction failed: %w", txErr))
 }
 
 func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) {
@@ -47,24 +47,24 @@ func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) 
 	defaultExpireTime := int64(0)
 
 	if err != nil {
-		return defaultToken, defaultExpireTime, errors.New("查询用户失败")
+		return defaultToken, defaultExpireTime, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by username failed: %w", err))
 	}
 
 	if existingUser == nil {
-		return defaultToken, defaultExpireTime, errors.New("用户名不存在")
+		return defaultToken, defaultExpireTime, common.ErrUserNotFound
 	}
 
 	isPasswordCorrect := existingUser.CheckPassword(params.Password)
 
 	if !isPasswordCorrect {
-		return defaultToken, defaultExpireTime, errors.New("密码错误")
+		return defaultToken, defaultExpireTime, common.ErrWrongPassword
 	}
 
 	// 生成 Token
 	token, expireTime, tokenErr := common.GenerateToken(existingUser.Uuid, existingUser.Username)
 
 	if tokenErr != nil {
-		return defaultToken, defaultExpireTime, tokenErr
+		return defaultToken, defaultExpireTime, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("generate token failed: %w", tokenErr))
 	}
 
 	return token, expireTime, nil
@@ -73,8 +73,12 @@ func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) 
 func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) {
 	user, err := repository.UserRepo.FindByUuid(uuid)
 
-	if user == nil || err != nil {
-		return nil, err
+	if err != nil {
+		return nil, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by uuid failed: %w", err))
+	}
+
+	if user == nil {
+		return nil, common.ErrUserNotFound
 	}
 
 	return &dto.GetUserInfoData{
@@ -83,7 +87,7 @@ func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) 
 		Nickname: user.Nickname,
 		Avatar:   user.Avatar,
 		Email:    user.Email,
-	}, err
+	}, nil
 }
 
 func (this *UserService) ModifyUserInfo(
@@ -92,15 +96,19 @@ func (this *UserService) ModifyUserInfo(
 ) (*dto.ModifyUserInfoData, error) {
 	userInfo, err := repository.UserRepo.UpdatesByUuid(uuid, updates)
 
+	if err != nil {
+		return nil, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo updates by uuid failed: %w", err))
+	}
+
 	if userInfo == nil {
-		return nil, err
+		return nil, common.ErrUserNotFound
 	}
 
 	return &dto.ModifyUserInfoData{
 		Nickname: userInfo.Nickname,
 		Avatar:   userInfo.Avatar,
 		Email:    userInfo.Email,
-	}, err
+	}, nil
 }
 
 // 分配内存，初始化零值并返回指针
