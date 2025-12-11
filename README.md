@@ -33,6 +33,8 @@ swag init -g ./internal/router/router.go
 
 ## 错误码
 
+### 错误码规范
+
 错误码（code）结构：DDCCC (5 位数字)
 
 - DD (前两位)：领域/模块标识符（Domain）
@@ -53,8 +55,17 @@ swag init -g ./internal/router/router.go
 2）CCC（具体错误编号）
 这部分用于区分领域内具体的错误类型，从 001 开始递增。
 
+### 分层
+
+| 层级                | 职责             | 错误载体       | 核心作用                                            |
+| ------------------- | ---------------- | -------------- | --------------------------------------------------- |
+| Repository (DB/DAO) | 基础设施错误处理 | Go error       | 仅传递数据库或外部服务错误                          |
+| Service (业务层)    | 核心错误映射     | \*ServiceError | 封装 业务码 (Code) 和 HTTP 状态码 (HTTPStatus)      |
+| Handler (控制层)    | 最终 HTTP 响应   | HTTP 响应      | 读取 \*ServiceError，设置 HTTP 状态码和 JSON 错误体 |
+
 ## TODO
 
 - [x] 完善日志
 - [x] 验证 token 时效
 - [x] 零值陷阱
+- [ ] 参数区分大小写
