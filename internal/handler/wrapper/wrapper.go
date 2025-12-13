@@ -44,8 +44,8 @@ func WrapGinHandler[T any](
 				// 调用后，指针对应的 reqLog 将会设置脱敏后的密码
 				setter.SetPassword()
 			}
-			// TODO:
-			log.Logger.Info("TODO", log.Any("传参", reqLog))
+			apiName := ctx.Request.Method + ctx.Request.URL.Path
+			log.Logger.Info(apiName, log.Any("传参", reqLog))
 
 			if err != nil { // 3. 执行自定义结构体校验逻辑
 				validationErr := translateValidationErrors(err)

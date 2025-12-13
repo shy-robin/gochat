@@ -71,3 +71,4 @@ swag init -g ./internal/router/router.go
 - [x] 验证 token 时效
 - [x] 零值陷阱
 - [ ] 参数区分大小写
+- [ ] 单元测试

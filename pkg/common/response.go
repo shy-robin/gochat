@@ -95,8 +95,8 @@ type SuccessResponseConfig struct {
 // Success 响应成功，用于 GET/PUT/POST 等操作
 func GenerateSuccessResponse(ctx *gin.Context, res *SuccessResponse) {
 	ctx.JSON(res.HTTPStatus, res)
-	// TODO:
-	log.Logger.Error("TODO", log.Any("成功", res))
+	apiName := ctx.Request.Method + ctx.Request.URL.Path
+	log.Logger.Error(apiName, log.Any("成功", res))
 }
 
 type SuccessListResponseConfig struct {
@@ -153,8 +153,8 @@ func NoContentResponse(ctx *gin.Context) {
 func GenerateFailedResponse(ctx *gin.Context, err *ServiceError) {
 	ctx.JSON(err.HTTPStatus, err)
 	ctx.Abort() // 终止后续 Handler 执行
-	// TODO:
-	log.Logger.Error("TODO", log.Any("参数校验失败", err))
+	apiName := ctx.Request.Method + ctx.Request.URL.Path
+	log.Logger.Error(apiName, log.Any("参数校验失败", err))
 }
 
 // PasswordSetter 定义了设置 Password 字段的方法
