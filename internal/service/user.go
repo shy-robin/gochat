@@ -38,11 +38,15 @@ func (this *UserService) Register(user *model.User) (*dto.CreateUserResponseData
 		return nil
 	})
 
+	if txErr != nil {
+		return nil, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo transaction failed: %w", txErr))
+	}
+
 	return &dto.CreateUserResponseData{
 		Username: user.Username,
 		Uuid:     user.Uuid,
 		CreateAt: user.BaseModel.CreatedAt,
-	}, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo transaction failed: %w", txErr))
+	}, nil
 }
 
 func (this *UserService) Login(params *dto.LoginRequest) (*dto.LoginResponseData, *common.ServiceError) {
