@@ -14,15 +14,15 @@ import (
 type UserService struct {
 }
 
-func (this *UserService) Register(user *model.User) error {
+func (this *UserService) Register(user *model.User) (*dto.CreateUserResponseData, *common.ServiceError) {
 	existingUser, err := repository.UserRepo.FindByUsername(user.Username)
 
 	if err != nil {
-		return common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by username failed: %w", err))
+		return nil, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by username failed: %w", err))
 	}
 
 	if existingUser != nil {
-		return common.ErrUsernameConflict
+		return nil, common.ErrUsernameConflict
 	}
 
 	db := db.GetDB()
@@ -38,39 +38,44 @@ func (this *UserService) Register(user *model.User) error {
 		return nil
 	})
 
-	return common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo transaction failed: %w", txErr))
+	return &dto.CreateUserResponseData{
+		Username: user.Username,
+		Uuid:     user.Uuid,
+		CreateAt: user.BaseModel.CreatedAt,
+	}, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo transaction failed: %w", txErr))
 }
 
-func (this *UserService) Login(params *dto.LoginRequest) (string, int64, error) {
+func (this *UserService) Login(params *dto.LoginRequest) (*dto.LoginResponseData, *common.ServiceError) {
 	existingUser, err := repository.UserRepo.FindByUsername(params.Username)
-	defaultToken := ""
-	defaultExpireTime := int64(0)
 
 	if err != nil {
-		return defaultToken, defaultExpireTime, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by username failed: %w", err))
+		return nil, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("repo find by username failed: %w", err))
 	}
 
 	if existingUser == nil {
-		return defaultToken, defaultExpireTime, common.ErrUserNotFound
+		return nil, common.ErrUserNotFound
 	}
 
 	isPasswordCorrect := existingUser.CheckPassword(params.Password)
 
 	if !isPasswordCorrect {
-		return defaultToken, defaultExpireTime, common.ErrWrongPassword
+		return nil, common.ErrWrongPassword
 	}
 
 	// 生成 Token
 	token, expireTime, tokenErr := common.GenerateToken(existingUser.Uuid, existingUser.Username)
 
 	if tokenErr != nil {
-		return defaultToken, defaultExpireTime, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("generate token failed: %w", tokenErr))
+		return nil, common.WrapServiceError(common.ErrDatabaseFailed, fmt.Errorf("generate token failed: %w", tokenErr))
 	}
 
-	return token, expireTime, nil
+	return &dto.LoginResponseData{
+		Token:    token,
+		ExpireAt: expireTime,
+	}, nil
 }
 
-func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) {
+func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, *common.ServiceError) {
 	user, err := repository.UserRepo.FindByUuid(uuid)
 
 	if err != nil {
@@ -93,7 +98,7 @@ func (this *UserService) GetUserInfo(uuid string) (*dto.GetUserInfoData, error) 
 func (this *UserService) ModifyUserInfo(
 	uuid string,
 	updates dto.ModifyUserInfoRequest,
-) (*dto.ModifyUserInfoData, error) {
+) (*dto.ModifyUserInfoData, *common.ServiceError) {
 	userInfo, err := repository.UserRepo.UpdatesByUuid(uuid, updates)
 
 	if err != nil {

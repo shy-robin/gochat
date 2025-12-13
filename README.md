@@ -63,6 +63,8 @@ swag init -g ./internal/router/router.go
 | Service (业务层)    | 核心错误映射     | \*ServiceError | 封装 业务码 (Code) 和 HTTP 状态码 (HTTPStatus)      |
 | Handler (控制层)    | 最终 HTTP 响应   | HTTP 响应      | 读取 \*ServiceError，设置 HTTP 状态码和 JSON 错误体 |
 
+> DAO（Data Access Object）：数据访问对象层，DAO 层的主要目标是实现业务逻辑层与持久化机制的解耦。
+
 ## TODO
 
 - [x] 完善日志

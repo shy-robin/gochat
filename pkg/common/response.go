@@ -4,6 +4,53 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/shy-robin/gochat/pkg/global/log"
+)
+
+type SuccessResponse struct {
+	// 业务状态标识: "success" 或 "error"
+	Status string `json:"status"`
+
+	// Code 是自定义的业务错误码 (例如: 30001, 40001)
+	Code int `json:"code"`
+
+	// Message 是面向用户的错误信息
+	Message string `json:"message"`
+
+	// 成功时返回的业务数据
+	Data any `json:"data,omitempty"`
+
+	// HTTPStatus 是这个错误对应的 HTTP 状态码，用于 Handler 层响应 (JSON 忽略)
+	HTTPStatus int `json:"-"`
+
+	// InternalError 是底层的 Go error，用于日志记录，不返回给客户端 (JSON 忽略)
+	InternalError error `json:"-"`
+}
+
+// Wrap 创建一个新的 SuccessResponse，通常用于设置响应数据
+func WrapSuccessResponse(this *SuccessResponse, data any) *SuccessResponse {
+	if this == nil {
+		return nil
+	}
+	// 复制错误，避免修改预定义的全局错误常量
+	newRes := *this
+	newRes.Data = data
+	return &newRes
+}
+
+var (
+	ResOk = &SuccessResponse{
+		Code:       0,
+		Status:     "success",
+		Message:    "ok",
+		HTTPStatus: http.StatusOK,
+	}
+	ResCreated = &SuccessResponse{
+		Code:       0,
+		Status:     "success",
+		Message:    "ok",
+		HTTPStatus: http.StatusCreated,
+	}
 )
 
 // Response 是通用的 API 响应结构
@@ -45,36 +92,11 @@ type SuccessResponseConfig struct {
 	Data     any
 }
 
-type SuccessResponseOption func(*SuccessResponseConfig)
-
-func WithSuccessResponseHttpCode(httpCode int) SuccessResponseOption {
-	return func(config *SuccessResponseConfig) {
-		config.HttpCode = httpCode
-	}
-}
-
-func WithSuccessResponseData(data any) SuccessResponseOption {
-	return func(config *SuccessResponseConfig) {
-		config.Data = data
-	}
-}
-
 // Success 响应成功，用于 GET/PUT/POST 等操作
-func SuccessResponse(ctx *gin.Context, opts ...SuccessResponseOption) {
-	// 设置默认值
-	config := &SuccessResponseConfig{
-		HttpCode: http.StatusOK,
-	}
-
-	// 依次应用传入的选项函数，覆盖默认值
-	for _, option := range opts {
-		option(config)
-	}
-
-	ctx.JSON(config.HttpCode, Response{
-		Status: "success",
-		Data:   config.Data,
-	})
+func GenerateSuccessResponse(ctx *gin.Context, res *SuccessResponse) {
+	ctx.JSON(res.HTTPStatus, res)
+	// TODO:
+	log.Logger.Error("TODO", log.Any("成功", res))
 }
 
 type SuccessListResponseConfig struct {
@@ -127,62 +149,17 @@ func NoContentResponse(ctx *gin.Context) {
 	ctx.AbortWithStatus(http.StatusNoContent)
 }
 
-type FailResponseConfig struct {
-	HttpCode int
-	ErrCode  int
-	Message  string
-	Details  any
-}
-
-type FailResponseOption func(*FailResponseConfig)
-
-func WithFailResponseHttpCode(httpCode int) FailResponseOption {
-	return func(config *FailResponseConfig) {
-		config.HttpCode = httpCode
-	}
-}
-
-func WithFailResponseErrCode(errCode int) FailResponseOption {
-	return func(config *FailResponseConfig) {
-		config.ErrCode = errCode
-	}
-}
-func WithFailResponseMessage(message string) FailResponseOption {
-	return func(config *FailResponseConfig) {
-		config.Message = message
-	}
-}
-
-func WithFailResponseDetails(details any) FailResponseOption {
-	return func(config *FailResponseConfig) {
-		config.Details = details
-	}
-}
-
 // Fail 响应失败，统一处理所有错误
-func FailResponse(ctx *gin.Context, opts ...FailResponseOption) {
-	// 设置默认值
-	config := &FailResponseConfig{
-		HttpCode: http.StatusInternalServerError,
-	}
-
-	// 依次应用传入的选项函数，覆盖默认值
-	for _, option := range opts {
-		option(config)
-	}
-
-	ctx.JSON(config.HttpCode, Response{
-		Status:    "error",
-		ErrorCode: config.ErrCode,
-		Message:   config.Message,
-		Details:   config.Details,
-	})
+func GenerateFailedResponse(ctx *gin.Context, err *ServiceError) {
+	ctx.JSON(err.HTTPStatus, err)
 	ctx.Abort() // 终止后续 Handler 执行
+	// TODO:
+	log.Logger.Error("TODO", log.Any("参数校验失败", err))
 }
 
-// ErrorCode 定义，例如:
-const (
-	CodeValidationFailed = 1001 // 客户端参数错误
-	CodeNotFound         = 1002 // 资源不存在
-	CodeInternalError    = 9999 // 服务器内部错误
-)
+// PasswordSetter 定义了设置 Password 字段的方法
+type PasswordSetter interface {
+	SetPassword()
+}
+
+type EmptyRequest struct{}

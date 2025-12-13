@@ -15,6 +15,11 @@ type CreateUserRequest struct {
 	Email    string `json:"email" example:"robin@qq.com" binding:"omitempty,email"`
 }
 
+func (this *CreateUserRequest) SetPassword() {
+	// 数据脱敏
+	this.Password = "******"
+}
+
 // CreateUserResponse  是返回给客户端的用户响应 (DTO)
 type CreateUserResponse struct {
 	Status string `json:"status" example:"success"`
@@ -31,6 +36,11 @@ type CreateUserResponseData struct {
 type LoginRequest struct {
 	Username string `json:"username" binding:"required" example:"robin"`
 	Password string `json:"password" binding:"required" example:"123456"`
+}
+
+func (this *LoginRequest) SetPassword() {
+	// 数据脱敏
+	this.Password = "******"
 }
 
 type LoginResponse struct {
@@ -63,6 +73,11 @@ type ModifyUserInfoRequest struct {
 	Nickname string `json:"nickname" example:"robin" binding:"omitempty,min=2,max=20"`
 	Avatar   string `json:"avatar" example:"https://avatars.githubusercontent.com/u/123456?v=4" binding:"omitempty,url"`
 	Email    string `json:"email" example:"robin@test.com" binding:"omitempty,email"`
+}
+
+func (this *ModifyUserInfoRequest) SetPassword() {
+	// 数据脱敏
+	this.Password = "******"
 }
 
 type ModifyUserInfoResponse struct {
